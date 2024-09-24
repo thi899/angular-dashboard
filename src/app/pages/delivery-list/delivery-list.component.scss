@@ -1,0 +1,27 @@
+.mat-mdc-table {
+    min-width: 100%;
+    border: 0;
+    border-spacing: 0;
+    table-layout: auto;
+    white-space: normal;
+    background-color: #e4e8ef;
+}
+
+:host ::ng-deep {
+    .mat-mdc-standard-chip:not(.mdc-evolution-chip--disabled) {
+        width: 20vw;
+    }
+
+    .mdc-evolution-chip-set__chips {
+        display: flex;
+        justify-content: space-evenly;
+        flex-wrap: nowrap;
+        min-width: 0;
+        margin: 8px;
+    }
+
+    .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+        width: 50vw;
+        margin: 8px;
+    }
+}
