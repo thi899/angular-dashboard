@@ -1,7 +1,6 @@
 import { MediaMatcher } from '@angular/cdk/layout';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
-import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MenuModel } from './models/menu.model';
@@ -9,6 +8,7 @@ import { DeliveryService } from 'src/app/services/delivery.service';
 import { Deliveries } from 'src/app/services/model/delivery.model';
 import { first } from 'rxjs';
 import { DeliveriesStateService } from 'src/app/services/state/deliveries.state.service';
+import { Router } from '@angular/router';
 
 /** @title Responsive sidenav */
 @Component({
@@ -33,19 +33,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ]
 
-  fillerContent = Array.from(
-    { length: 50 },
-    () =>
-      `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-       labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-       laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-       voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-       cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`,
-  );
-
   private _mobileQueryListener: () => void;
 
   constructor(
+    private router: Router,
     private deliveryService: DeliveryService,
     private state: DeliveriesStateService) {
     const changeDetectorRef = inject(ChangeDetectorRef);
@@ -74,13 +65,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   handleClickScreensRedirects(nav: string): void {
-    if (nav.toLowerCase().includes('dashboard')) {
-      this.setShowDeliveryList(false);
-      return this.setShowDashboard(true);
-    }
-
-    this.setShowDashboard(false);
-    return this.setShowDeliveryList(true);
+    const route = nav.toLowerCase() === 'dashboard' ? '/dashboard' : '/deliveries';
+    this.router.navigate([route]);
   }
 
   setShowDashboard(showDashboard: boolean): void {

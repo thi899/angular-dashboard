@@ -19,12 +19,13 @@
     </mat-sidenav>
 
     <mat-sidenav-content>
-      @if (showDashboard) {
+      <!-- @if (showDashboard) {
       <app-dashboard></app-dashboard>
       }
       @if (showDeliveryList) {
       <app-delivery-list></app-delivery-list>
-      }
+      } -->
+      <router-outlet></router-outlet> 
     </mat-sidenav-content>
   </mat-sidenav-container>
 </div>
