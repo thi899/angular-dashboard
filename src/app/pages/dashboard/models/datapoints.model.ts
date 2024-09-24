@@ -1,4 +1,5 @@
 export interface DataPointsModel {
     label: string;
-    y: number;
+    y?: number;
+    x?: number;
 }
