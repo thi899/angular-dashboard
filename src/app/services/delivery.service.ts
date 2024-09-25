@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { EndpointEnum } from "./enum/endpoint.enum";
-import { Observable } from "rxjs";
+import { catchError, Observable, of, throwError } from "rxjs";
 import { Deliveries } from "./model/delivery.model";
 
 @Injectable({
@@ -18,5 +18,5 @@ export class DeliveryService {
         return this.http.
             get<Deliveries>(EndpointEnum.URI_API_DELIVERY)
     }
-
 }
+

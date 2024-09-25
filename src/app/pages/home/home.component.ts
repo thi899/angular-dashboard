@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MenuModel } from './models/menu.model';
 import { DeliveryService } from 'src/app/services/delivery.service';
 import { Deliveries } from 'src/app/services/model/delivery.model';
-import { first } from 'rxjs';
+import { catchError, first, of, Subject, takeUntil } from 'rxjs';
 import { DeliveriesStateService } from 'src/app/services/state/deliveries.state.service';
 import { Router } from '@angular/router';
 
@@ -20,6 +20,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   mobileQuery: MediaQueryList;
   showDashboard: boolean;
   showDeliveryList: boolean;
+
+  private destroy$ = new Subject<void>();
 
   menu: MenuModel[] = [
     {
@@ -41,7 +43,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     private state: DeliveriesStateService) {
     const changeDetectorRef = inject(ChangeDetectorRef);
     const media = inject(MediaMatcher);
-
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.mobileQuery.addListener(this._mobileQueryListener);
@@ -54,7 +55,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   getDeliveries(): void {
     this.deliveryService
       .getDeliveries()
-      .pipe(first())
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError((err: any) => {
+          console.error('Erro ao buscar entregas:', err);
+          return of([]); 
+        }))
       .subscribe((deliveries: Deliveries) => {
         this.state.setDeliveries(deliveries);
       });
@@ -62,6 +68,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.mobileQuery.removeListener(this._mobileQueryListener);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   handleClickScreensRedirects(nav: string): void {
@@ -76,11 +84,5 @@ export class HomeComponent implements OnInit, OnDestroy {
   setShowDeliveryList(showDeliveryList: boolean): void {
     this.showDeliveryList = showDeliveryList;
   }
-
-  shouldRun = /(^|.)(stackblitz|webcontainer).(io|com)$/.test(window.location.host);
 }
 
-
-/**  Copyright 2024 Google LLC. All Rights Reserved.
-    Use of this source code is governed by an MIT-style license that
-    can be found in the LICENSE file at https://angular.io/license */
