@@ -78,7 +78,7 @@ Este projeto está sob a Licença MIT. Para mais detalhes, consulte o arquivo [L
 
 ## Contato
 
-Thiago - [thi899](https://github.com/thi899)
+Github Thiago - [thi899](https://github.com/thi899)
 
 Link do projeto: [https://github.com/thi899/angular-dashboard](https://github.com/thi899/angular-dashboard)
 
