@@ -10,7 +10,6 @@ export class DeliveriesDataSourceService {
     private dataSource: MatTableDataSource<Delivery>;
 
     constructor() {
-        // Inicializando com um array vazio para evitar undefined
         this.dataSource = new MatTableDataSource<Delivery>([]);
     }
 

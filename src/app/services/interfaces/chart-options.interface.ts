@@ -14,22 +14,22 @@ export interface ChartOptions {
     };
     legend?: {
       cursor: string;
-      itemclick: (e: any) => void; // Pode ser ajustado para um tipo mais específico, se necessário
+      itemclick: (e: any) => void;
     };
     data: ChartDataPoint[];
   }
 
-  interface ChartDataPoint {
+  export interface ChartDataPoint {
     color?: string;
     type: string;
     name?: string;
     legendText?: string;
     showInLegend?: boolean;
-    axisYType?: string; // Propriedade opcional
+    axisYType?: string;
     dataPoints: DataPoint[];
   }
   
-  interface DataPoint {
+  export interface DataPoint {
     label: string;
     y?: number | undefined;
   }

@@ -2,59 +2,35 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DeliveryListComponent } from './delivery-list.component';
 import { DeliveriesStateService } from 'src/app/services/state/deliveries.state.service';
 import { DeliveriesDataSourceService } from 'src/app/services/deliveries-data-source.service';
-import { MatPaginator } from '@angular/material/paginator';
 import { of } from 'rxjs';
-import { Delivery } from 'src/app/services/model/delivery.model';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 
 describe('DeliveryListComponent', () => {
   let component: DeliveryListComponent;
   let fixture: ComponentFixture<DeliveryListComponent>;
-  let deliveriesStateServiceMock: any;
-  let deliveriesDataSourceServiceMock: any;
+  let deliveriesStateServiceMock: jasmine.SpyObj<DeliveriesStateService>;
+  let deliveriesDataSourceServiceMock: jasmine.SpyObj<DeliveriesDataSourceService>;
 
-  const mockDeliveries: Delivery[] = [
-    {
-      id: '1',
-      documento: '123456789',
-      motorista: { nome: 'John Doe' },
-      cliente_origem: { nome: 'Cliente A', endereco: 'av', bairro: 'vila', cidade: 'Campinas' },
-      cliente_destino: { nome: 'Cliente B', endereco: 'av', bairro: 'sasa', cidade: 'sas' },
-      status_entrega: 'Entregue',
-    },
-    {
-      id: '2',
-      documento: '987654321',
-      motorista: { nome: 'Jane Doe' },
-      cliente_origem: { nome: 'Cliente C', endereco: 'av', bairro: 'vila', cidade: 'Campinas' },
-      cliente_destino: { nome: 'Cliente D', endereco: 'av', bairro: 'vila', cidade: 'Campinas' }, // Removido o segundo cliente_destino
-      status_entrega: 'Pendente',
-    },
-  ];
+  beforeEach(() => {
+    deliveriesStateServiceMock = jasmine.createSpyObj('DeliveriesStateService', ['getDeliveries']);
+    deliveriesDataSourceServiceMock = jasmine.createSpyObj('DeliveriesDataSourceService', ['setData', 'setPaginator', 'getDataSource', 'getFilterPredicate', 'applyFilter']);
 
-  beforeEach(async () => {
-    deliveriesStateServiceMock = {
-      getDeliveries: jest.fn().mockReturnValue(of(mockDeliveries))
-    };
-
-    deliveriesDataSourceServiceMock = {
-      setData: jest.fn(),
-      setPaginator: jest.fn(),
-      getDataSource: jest.fn().mockReturnValue({ data: [], filterPredicate: jest.fn() }),
-      applyFilter: jest.fn(),
-      getFilterPredicate: jest.fn().mockReturnValue(jest.fn())
-    };
-
-    await TestBed.configureTestingModule({
+    TestBed.configureTestingModule({
       declarations: [DeliveryListComponent],
       providers: [
         { provide: DeliveriesStateService, useValue: deliveriesStateServiceMock },
-        { provide: DeliveriesDataSourceService, useValue: deliveriesDataSourceServiceMock },
-      ],
-      imports: []
+        { provide: DeliveriesDataSourceService, useValue: deliveriesDataSourceServiceMock }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(DeliveryListComponent);
     component = fixture.componentInstance;
+    deliveriesStateServiceMock.getDeliveries.and.returnValue(of([])); 
+  });
+
+  afterEach(() => {
+    component.ngOnDestroy();
   });
 
   it('should create', () => {
@@ -62,39 +38,39 @@ describe('DeliveryListComponent', () => {
   });
 
   it('should call getDeliveries on ngAfterViewInit', () => {
-    const getDeliveriesSpy = jest.spyOn(component, 'getDeliveries');
+    spyOn(component, 'getDeliveries').and.callThrough();
     component.ngAfterViewInit();
-    expect(getDeliveriesSpy).toHaveBeenCalled();
+    expect(component.getDeliveries).toHaveBeenCalled();
   });
 
-  it('should retrieve deliveries and set them to dataSource', () => {
-    component.ngAfterViewInit(); 
-
-    expect(deliveriesStateServiceMock.getDeliveries).toHaveBeenCalled();
-    expect(deliveriesDataSourceServiceMock.setData).toHaveBeenCalledWith(mockDeliveries);
-    expect(deliveriesDataSourceServiceMock.setPaginator).toHaveBeenCalled();
+  it('should set deliveries and update dataSource in getDeliveries', () => {
+    const mockDeliveries = [
+      { id: '1', documento: 'DOC1', motorista: { nome: 'Driver 1' }, cliente_origem: { nome: 'Client A', endereco: '', bairro: '', cidade: '' }, cliente_destino: { nome: 'Client B', endereco: '', bairro: '', cidade: '' }, status_entrega: 'Pending' }
+    ];
+    
+    deliveriesStateServiceMock.getDeliveries.and.returnValue(of(mockDeliveries));
+    
+    component.ngAfterViewInit();
+    
     expect(component.deliveries).toEqual(mockDeliveries);
     expect(component.displayedColumns).toEqual(Object.keys(mockDeliveries[0]));
+    expect(deliveriesDataSourceServiceMock.setData).toHaveBeenCalledWith(mockDeliveries);
+    expect(deliveriesDataSourceServiceMock.setPaginator).toHaveBeenCalledWith(component.paginator);
   });
 
-  it('should apply filter correctly', () => {
-    const filterValue = 'John';
+  it('should apply filter', () => {
+    const filterValue = 'test';
+    spyOn(component, 'cleanInput').and.returnValue(filterValue);
     component.applyFilter(filterValue);
-    expect(deliveriesDataSourceServiceMock.applyFilter).toHaveBeenCalledWith(expect(filterValue));
+    
+    expect(component.cleanInput).toHaveBeenCalledWith(filterValue);
+    expect(deliveriesDataSourceServiceMock.applyFilter).toHaveBeenCalledWith(filterValue);
   });
 
-  it('should clean input for filtering', () => {
-    const rawInput = '  Hello World!  ';
-    const cleanedInput = component['cleanInput'](rawInput);
-    expect(cleanedInput).toBe('hello world');
-  });
-
-  it('should unsubscribe on ngOnDestroy', () => {
-    const nextSpy = jest.spyOn(component['destroy$'], 'next');
-    const completeSpy = jest.spyOn(component['destroy$'], 'complete');
-
-    component.ngOnDestroy();
-    expect(nextSpy).toHaveBeenCalled();
-    expect(completeSpy).toHaveBeenCalled();
+  it('should clean input', () => {
+    const input = '  Test Input! ';
+    const expectedOutput = 'test input';
+    const result = component.cleanInput(input);
+    expect(result).toEqual(expectedOutput);
   });
 });

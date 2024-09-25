@@ -54,7 +54,7 @@ export class DeliveryListComponent implements AfterViewInit, OnDestroy {
     this.deliveryDataSource.applyFilter(filterValue);
   }
 
-  private cleanInput(value: string): string {
+  public cleanInput(value: string): string {
     return value.trim().toLowerCase().normalize("NFD").replace(/[^\w\s]/gi, '').replace(/[\u0300-\u036f]/g, '');
   }
 }
