@@ -3,6 +3,7 @@ import { Deliveries } from 'src/app/services/model/delivery.model';
 import { DeliveriesStateService } from 'src/app/services/state/deliveries.state.service';
 import { ResultModel } from './models/result.model';
 import { DataPointsModel } from './models/datapoints.model';
+import { StatusEnum } from './enum/status.enum';
 
 @Component({
   selector: 'app-dashboard',
@@ -137,11 +138,6 @@ export class DashboardComponent implements OnInit {
   contarStatusPorMotorista(entregas: Deliveries) {
 
     const resultado: ResultModel[] = [];
-    const dataPointsStatusPending: DataPointsModel[] = [];
-    const dataPointsStatusDelivered: DataPointsModel[] = [];
-    const dataPointsStatusInsuccess: DataPointsModel[] = [];
-    const dataPointsByNeighborhoodDeliveredTotal: DataPointsModel[] = [];
-    const dataPointsByNeighborhoodDeliveriesMade: DataPointsModel[] = [];
 
     for (const entrega of entregas) {
       const { nome } = entrega.motorista;
@@ -155,20 +151,30 @@ export class DashboardComponent implements OnInit {
         resultado.push(motorista);
       }
 
-      if (status.toLocaleLowerCase().includes('pendente')) {
+      if (status.toLocaleLowerCase().includes(StatusEnum.PENDING.toLocaleLowerCase())) {
         motorista.totalPendente++;
       }
 
-      if (status.toLocaleLowerCase().includes('entregue')) {
+      if (status.toLocaleLowerCase().includes(StatusEnum.DELIVERED.toLocaleLowerCase())) {
         motorista.totalEntregue++;
       }
 
-      if (status.toLocaleLowerCase().includes('insucesso')) {
+      if (status.toLocaleLowerCase().includes(StatusEnum.INSUCCESS.toLocaleLowerCase())) {
         motorista.totalInsucesso++;
       }
     }
 
-    resultado.map((result) => {
+    return this.resultChartsVisions(resultado);
+  }
+
+  resultChartsVisions(result: ResultModel[]) {
+    const dataPointsStatusPending: DataPointsModel[] = [];
+    const dataPointsStatusDelivered: DataPointsModel[] = [];
+    const dataPointsStatusInsuccess: DataPointsModel[] = [];
+    const dataPointsByNeighborhoodDeliveredTotal: DataPointsModel[] = [];
+    const dataPointsByNeighborhoodDeliveriesMade: DataPointsModel[] = [];
+
+    result.map((result) => {
 
       dataPointsStatusPending.push({
         label: result.nome,
@@ -195,20 +201,7 @@ export class DashboardComponent implements OnInit {
         y: result.totalEntregue
       });
 
-    })
-
-    console.log(
-      {
-        pendentes: dataPointsStatusPending,
-        entregues: dataPointsStatusDelivered,
-        insucessos: dataPointsStatusInsuccess,
-        bairrosTotalEntrega: dataPointsByNeighborhoodDeliveriesMade,
-
-      }
-
-    )
-
-
+    });
 
     return {
       pendentes: dataPointsStatusPending,
@@ -217,7 +210,6 @@ export class DashboardComponent implements OnInit {
       bairrosTotalEntrega: dataPointsByNeighborhoodDeliveredTotal,
       bairrosTotalEntregaFeitas: dataPointsByNeighborhoodDeliveriesMade
     }
-
   }
 
 
