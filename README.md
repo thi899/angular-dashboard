@@ -58,6 +58,12 @@ npm start
 
 O aplicativo estará disponível em `http://localhost:4200`.
 
+## API
+
+Para rodar o servidor mockado basta rodar usando o comando:
+nodemon server/server.js
+
+
 ## Testes
 
 Para executar os testes do projeto, use:
@@ -78,9 +84,8 @@ Este projeto está sob a Licença MIT. Para mais detalhes, consulte o arquivo [L
 
 ## Contato
 
-Github Thiago - [thi899](https://github.com/thi899)
+Thiago - [thi899](https://github.com/thi899)
 
 Link do projeto: [https://github.com/thi899/angular-dashboard](https://github.com/thi899/angular-dashboard)
 
 ---
-
