@@ -2,12 +2,13 @@ import { Injectable } from "@angular/core";
 import { Deliveries } from "./model/delivery.model";
 import { ChartOptions } from "./interfaces/chart-options.interface";
 import { ChartBuilderService } from "./chart-builder.service";
+import { IChartConfigurator } from "./interfaces/chart-builder.interface";
 
 @Injectable({
     providedIn: 'root'
 })
 
-export class ChartConfiguratorService {
+export class ChartConfiguratorService  {
 
     constructor(private chartBuilderService: ChartBuilderService) { }
 
