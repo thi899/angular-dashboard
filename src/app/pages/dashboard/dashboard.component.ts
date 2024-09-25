@@ -14,6 +14,7 @@ export class DashboardComponent implements OnInit {
   deliveries: Deliveries = [];
   chartOptionsFirstVision: {};
   chartOptionsSecondVision: {};
+  chartOptionsThirdVision: {};
 
   constructor(private state: DeliveriesStateService) { }
 
@@ -29,6 +30,7 @@ export class DashboardComponent implements OnInit {
         this.deliveries = deliveries
         this.setChartOptionsFirstVision();
         this.setChartOptionsSecondVision();
+        this.setChartOptionsThirdVision();
       });
   }
 
@@ -37,9 +39,6 @@ export class DashboardComponent implements OnInit {
       animationEnabled: true,
       title: {
         text: "Andamento de entregas por motorista"
-      },
-      axisX: {
-        labelAngle: -90
       },
       toolTip: {
         shared: true
@@ -89,21 +88,70 @@ export class DashboardComponent implements OnInit {
     };
   }
 
+  setChartOptionsThirdVision(): void {
+    this.chartOptionsThirdVision = {
+      animationEnabled: true,
+      exportEnabled: true,
+      title: {
+        text: "Andamento de entregas por bairro",
+        fontFamily: "Calibri, Arial, sans-serif"
+      },
+      axisY: {
+        valueFormatString: "#",
+        interval: 1
+      },
+      toolTip: {
+        shared: true
+      },
+      legend: {
+        cursor: "pointer",
+        itemclick: function (e: any) {
+          if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+            e.dataSeries.visible = false;
+          }
+          else {
+            e.dataSeries.visible = true;
+          }
+          e.chart.render();
+        }
+      },
+      data: [{
+        type: "stackedBar",
+        name: "Quantidade total de entregas por bairro",
+        showInLegend: "true",
+        color: "#edae49",
+        dataPoints: this.contarStatusPorMotorista(this.deliveries)?.bairrosTotalEntrega
+
+      },
+      {
+        type: "stackedBar",
+        name: "Quantidade total de entregas feitas por bairro",
+        showInLegend: "true",
+        color: "#006A4E",
+        dataPoints: this.contarStatusPorMotorista(this.deliveries)?.bairrosTotalEntregaFeitas
+
+      }]
+    }
+  }
+
   contarStatusPorMotorista(entregas: Deliveries) {
 
     const resultado: ResultModel[] = [];
     const dataPointsStatusPending: DataPointsModel[] = [];
     const dataPointsStatusDelivered: DataPointsModel[] = [];
     const dataPointsStatusInsuccess: DataPointsModel[] = [];
+    const dataPointsByNeighborhoodDeliveredTotal: DataPointsModel[] = [];
+    const dataPointsByNeighborhoodDeliveriesMade: DataPointsModel[] = [];
 
     for (const entrega of entregas) {
       const { nome } = entrega.motorista;
       const status = entrega.status_entrega;
+      const bairro = entrega.cliente_destino.bairro;
 
       let motorista = resultado.find(m => m.nome === nome);
 
       if (!motorista) {
-        motorista = { nome, totalPendente: 0, totalEntregue: 0, totalInsucesso: 0 };
+        motorista = { nome, bairro, totalPendente: 0, totalEntregue: 0, totalInsucesso: 0 };
         resultado.push(motorista);
       }
 
@@ -137,13 +185,25 @@ export class DashboardComponent implements OnInit {
         y: result.totalInsucesso
       });
 
+      dataPointsByNeighborhoodDeliveredTotal.push({
+        label: result.bairro,
+        y: result.totalEntregue + result.totalPendente
+      });
+
+      dataPointsByNeighborhoodDeliveriesMade.push({
+        label: result.bairro,
+        y: result.totalEntregue
+      });
+
     })
 
     console.log(
       {
         pendentes: dataPointsStatusPending,
         entregues: dataPointsStatusDelivered,
-        insucessos: dataPointsStatusInsuccess
+        insucessos: dataPointsStatusInsuccess,
+        bairrosTotalEntrega: dataPointsByNeighborhoodDeliveriesMade,
+
       }
 
     )
@@ -153,7 +213,9 @@ export class DashboardComponent implements OnInit {
     return {
       pendentes: dataPointsStatusPending,
       entregues: dataPointsStatusDelivered,
-      insucessos: dataPointsStatusInsuccess
+      insucessos: dataPointsStatusInsuccess,
+      bairrosTotalEntrega: dataPointsByNeighborhoodDeliveredTotal,
+      bairrosTotalEntregaFeitas: dataPointsByNeighborhoodDeliveriesMade
     }
 
   }

@@ -1,14 +1,17 @@
 
-
-    mat-card-content .mat-drawer-container {
-        padding: 3vw !important;
+:host ::ng-deep {
+    canvasjs-chart div {
         position: relative;
-        z-index: 1;
-        color: var(--mat-sidenav-content-text-color, var(--mat-app-on-background));
-        background-color: var(--mat-sidenav-content-background-color, var(--mat-app-background));
-        box-sizing: border-box;
-        -webkit-overflow-scrolling: touch;
-        display: block;
-        overflow: hidden;
-    }
+        padding: {
+            left: 1vw;
+            right: 2vw;
+            bottom: 3vw;
+
+        }
+        height: 400px;
+    };
+
+}
+  
+    
 
